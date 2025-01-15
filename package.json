@@ -1,0 +1,28 @@
+{
+  "name": "imagedaily",
+  "version": "1.0.0",
+  "description": "A daily image blog project",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sillyU-jpg/imageDaily.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sillyU-jpg/imageDaily/issues"
+  },
+  "homepage": "https://github.com/sillyU-jpg/imageDaily#readme",
+  "devDependencies": {
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "firebase": "^11.1.0"
+  }
+}
