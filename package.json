@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/sillyU-jpg/imageDaily#readme",
   "devDependencies": {
-    "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
