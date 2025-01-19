@@ -9,37 +9,29 @@ import { getFirestore, collection, getDocs,
 } from "firebase/storage";
 
 
-
 const firebaseConfig = {
-    apiKey: "AIzaSyDvYf2-mdKC_TsoI7fpoVK5B0C4CeRJuis",
-    authDomain: "imagediarynk.firebaseapp.com",
-    projectId: "imagediarynk",
-    storageBucket: "imagediarynk.firebasestorage.app",
-    messagingSenderId: "185040970597",
-    appId: "1:185040970597:web:fc191de4a14ceec828f78c",
-    measurementId: "G-1JW7YWPW2F"
+    apiKey: process.env.API_KEY,
+    authDomain: process.env.authDomain,
+    projectId: process.env.projectId,
+    storageBucket: process.env.storageBucket,
+    messagingSenderId: process.env.messagingSenderId,
+    appId: process.env.appId,
+    measurementId: process.env.measurementId
   };
 
-  initializeApp(firebaseConfig)
 
+  
+  initializeApp(firebaseConfig)
   const db = getFirestore()
   const storage = getStorage();
-
-
-
-
-
-
   //collection refrence
   const colRef = collection(db, 'entries')
 //gets all docs from c ollection 
-
 function getDate() {
   const date = new Date();
   const time = new Date();
   return date.toLocaleDateString() + " " + time.getHours() + ":" + time.getUTCMinutes() + time.get;
 }
-
 getDocs(colRef)
 .then((snapshot) => {
   let entries = []
@@ -51,19 +43,13 @@ getDocs(colRef)
   .catch(err => {
     console.log(err.message)
   })
-
-
  
-
-
   const addEntry = document.querySelector(".addEntry");
   let imageRef = addEntry.image.files[0]
    storageRef = ref(storage, imageRef)
   
-
   addEntry.addEventListener('submit', async (e) => {
       e.preventDefault()
-
               // Add entry to Firestore with the image URL
             addDoc(colRef, {
                   entryDate: getDate(), // function that gets the current date
@@ -73,11 +59,8 @@ getDocs(colRef)
               })
             
             })
-
-
   //deleting entries
   const deleteEntry = document.querySelector(".delete")
   deleteEntry.addEventListener('submit', (e) => {
     e.preventDefault()
   })
-
