@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 
 module.exports = {
     mode: 'development',
@@ -7,5 +8,14 @@ module.exports = {
         path: path.resolve(__dirname, 'dist', ),
          filename : 'bundle.js'
     },
-    watch: true
+    watch: true, 
+
+    plugins: [
+        // fix "process is not defined" error:
+        new webpack.ProvidePlugin({
+          process: 'process/browser',
+        }),
+    ]
 }
+
+
