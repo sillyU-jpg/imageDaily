@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs,
-  addDoc } from 'firebase/firestore'
+  addDoc, limit, orderBy, query } from 'firebase/firestore'
   import {
   getDownloadURL,
   ref as storageRef,
@@ -35,6 +35,7 @@ function getDate() {
   const time = new Date();
   return date.toLocaleDateString() + " " + time.getHours() + ":" + time.getUTCMinutes() + time.get;
 }
+
 getDocs(colRef)
 .then((snapshot) => {
   let entries = []
@@ -47,43 +48,115 @@ getDocs(colRef)
     console.log(err.message)
   })
  
+const currentPage = document.body.getAttribute("data-page");
+
+if (currentPage === "post") {
+
+  async function uploadImage() {
+    const file = document.getElementById("image-file").files[0];
+    const storageRef = ref(storage, `entryImages/${Date.now()}_${file.name}`); // Use a unique filename
+    const uploadResult = await uploadBytes(storageRef, file);
+    console.log("image successfully uploaded")
+    return getDownloadURL(uploadResult.ref); 
+  }// Return the file URL
+    const addEntry = document.querySelector(".addEntry");
+
+    addEntry.addEventListener('submit', async (e) => {
+      e.preventDefault();
+    
+      const imageUrl = await uploadImage();
+    
+    
+      // Add entry to Firestore with the image URL
+      addDoc(colRef, {
+        entryDate: getDate(), // Function that gets the current date
+        image: imageUrl,      // Store the image URL
+        imageDate: addEntry.imageDate.value,
+        text: addEntry.title.value,
+      });
+      document.querySelector(".addEntry").reset();
+    });
+    
+    
+      //deleting entries
+      const deleteEntry = document.querySelector(".delete")
+      deleteEntry.addEventListener('submit', (e) => {
+        e.preventDefault()
+        window.location.reload()
+      })
+  }
 
 
-// Function to upload the file and return its URL
-async function uploadImage() {
-  const file = document.getElementById("image-file").files[0];
-  const storageRef = ref(storage, `entryImages/${Date.now()}_${file.name}`); // Use a unique filename
-  const uploadResult = await uploadBytes(storageRef, file);
-  console.log("image successfully uploaded")
-  return getDownloadURL(uploadResult.ref); // Return the file URL
+
+  //index page 
+else if (currentPage === "index") {
+
+  async function getLatestEntry() {
+    // Reference the Firestore collection
+    const colRef = collection(db, 'entries');
+  
+    // Create a query to get the latest entry
+    const q = query(colRef, orderBy("entryDate"), limit(1)); // Order by entryDate in descending order to get the latest
+  
+    // Execute the query
+    const querySnapshot = await getDocs(q);
+  
+    // Extract the latest entry
+    let latestEntry = null;
+
+    querySnapshot.forEach((doc) => {
+      latestEntry = { id: doc.id, ...doc.data() };
+    });
+  
+    // Check if a latest entry exists
+    if (latestEntry) {
+      // Select the container element
+      const todayEntryElement = document.getElementById("todayentry");
+  
+      // Construct the HTML to display the entry
+      const entryHTML = `
+        <p><strong>Title:</strong> ${latestEntry.title}</p>
+        <p><strong>Date Uploaded:</strong> ${latestEntry.entryDate}</p>
+        <img src="${latestEntry.image}" alt="Entry Image" style="max-width: 100%; height: auto;">
+        <p><strong>Image Date:</strong> ${latestEntry.imageDate}</p>
+      `;
+  
+      // Update the element's content
+      todayEntryElement.innerHTML = entryHTML;
+
+    } else {
+      // Handle the case where there are no entries
+      document.getElementById("todayentry").innerHTML = "<p> No entries found.</p>";
+    }
+  }
+  
+  // Call the function to display the latest entry
+  getLatestEntry();
+}
+
+
+
+
+
+
+
+
+
+else if (currentPage === "archive") {
 
 }
 
+// Function to upload the file and return its URL
+
+
 // Add event listener to the form
-const addEntry = document.querySelector(".addEntry");
-
-addEntry.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const imageUrl = await uploadImage();
 
 
-  // Add entry to Firestore with the image URL
-  addDoc(colRef, {
-    entryDate: getDate(), // Function that gets the current date
-    image: imageUrl,      // Store the image URL
-    imageDate: addEntry.imageDate.value,
-    text: addEntry.title.value,
-  });
-  document.querySelector(".addEntry").reset();
-});
 
 
-  //deleting entries
-  const deleteEntry = document.querySelector(".delete")
-  deleteEntry.addEventListener('submit', (e) => {
-    e.preventDefault()
-    window.location.reload()
-  })
+
+
+
+
 
 
