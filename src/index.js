@@ -33,7 +33,7 @@ const firebaseConfig = {
 function getDate() {
   const date = new Date();
   const time = new Date();
-  return date.toLocaleDateString() + " " + time.getHours() + ":" + time.getUTCMinutes() + time.get;
+  return date.toLocaleDateString() + " " + time.getHours() + ":" + time.getUTCMinutes();
 }
 
 getDocs(colRef)
@@ -72,7 +72,7 @@ if (currentPage === "post") {
         entryDate: getDate(), // Function that gets the current date
         image: imageUrl,      // Store the image URL
         imageDate: addEntry.imageDate.value,
-        text: addEntry.title.value,
+        text: addEntry.text.value,
       });
       document.querySelector(".addEntry").reset();
     });
@@ -115,9 +115,9 @@ else if (currentPage === "index") {
   
       // Construct the HTML to display the entry
       const entryHTML = `
-        <p><strong>Title:</strong> ${latestEntry.title}</p>
-        <p><strong>Date Uploaded:</strong> ${latestEntry.entryDate}</p>
         <img src="${latestEntry.image}" alt="Entry Image" style="max-width: 100%; height: auto;">
+           <p>${latestEntry.text}</p>
+            <p><strong>Entry Date:</strong> ${latestEntry.entryDate}</p>
         <p><strong>Image Date:</strong> ${latestEntry.imageDate}</p>
       `;
   
@@ -126,10 +126,11 @@ else if (currentPage === "index") {
 
     } else {
       // Handle the case where there are no entries
-      document.getElementById("todayentry").innerHTML = "<p> No entries found.</p>";
+      document.getElementById("todayentry").innerHTML = "<p> No entries found. this must be an error... </p>";
     }
+ 
   }
-  
+
   // Call the function to display the latest entry
   getLatestEntry();
 }
