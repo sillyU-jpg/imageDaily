@@ -78,6 +78,7 @@ if (currentPage === "post") {
         image: imageUrl,      // Store the image URL
         imageDate: addEntry.imageDate.value,
         text: addEntry.text.value,
+        displayedOnDaily: false, 
       });
       document.querySelector(".addEntry").reset();
     });
@@ -100,7 +101,7 @@ if (currentPage === "post") {
       const colRef = collection(db, 'entries');
   
       // Create a query to get all entries ordered by entryDate in ascending order (oldest first)
-      const q = query(colRef, orderBy("entryDate", "asc"));
+      const q = query(colRef, orderBy("entryDate", "desc"));
   
       // Execute the query
       const querySnapshot = await getDocs(q);
@@ -133,7 +134,9 @@ if (currentPage === "post") {
   
         // Update the element's content
         todayEntryElement.innerHTML = entryHTML;
-  
+        const docRef = doc(db, 'entries', dailyEntry.id);
+        await updateDoc(docRef, { displayedOnDaily: true });
+
       } else {
         // Handle the case where there are no entries
         document.getElementById("todayentry").innerHTML = "<p>No entries found. This must be an error...</p>";
@@ -154,52 +157,40 @@ else if (currentPage === "archive") {
   let lastVisible = null; // Tracks the last document in the current page
   let currentPage = 1; // Tracks the current page number
   const pageSize = 6; // Number of entries per page
-  async function displayEntries(page = 1) {
-    // Reference the Firestore collection
-    const colRef = collection(db, "entries");
-  
-    // Build the query
-    let q = query(colRef, orderBy("entryDate", "asc"), limit(pageSize));
-  
-    // If it's not the first page, use `startAfter` with the last visible document
-    if (lastVisible && page > 1) {
-      q = query(colRef, orderBy("entryDate", "asc"), startAfter(lastVisible), limit(pageSize));
-    }
-  
-    // Execute the query
-    const querySnapshot = await getDocs(q);
-  
-    // Check if there are entries
-    if (!querySnapshot.empty) {
-      // Update the last visible document for the next page
-      lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-  
-      // Select the container element where the entries will be displayed
-      const container = document.getElementById("entriesarchive");
-  
-      // Clear the container for the current page
-      container.innerHTML = "";
-  
-      // Loop through the entries and append them to the container
-      querySnapshot.forEach((doc) => {
-        const entry = doc.data();
-        const entryHTML = `
-          <div class="entry">
-            <img src="${entry.image || "default-image.png"}" alt="Entry Image" style="max-width: 100%; height: auto;">
-            <p>${entry.text || "No text available."}</p>
-            <p><strong> ${entry.imageDate} </strong> </p>
-          </div>
-        `;
-        container.innerHTML += entryHTML;
-      });
-  
-      // Display page number
-      document.getElementById("paginationInfo").innerText = `Page ${page}`;
-    } else {
-      console.log("No more entries to display.");
-      document.getElementById("entriesContainer").innerHTML = "<p>No more entries available.</p>";
-    }
+async function displayEntries(page = 1) {
+  const colRef = collection(db, "entries");
+  let q = query(colRef, where("displayedOnDaily", "==", true), orderBy("entryDate", "asc"), limit(pageSize));
+
+  if (lastVisible && page > 1) {
+    q = query(colRef, where("displayedOnDaily", "==", true), orderBy("entryDate", "asc"), startAfter(lastVisible), limit(pageSize));
   }
+
+  const querySnapshot = await getDocs(q);
+
+  if (!querySnapshot.empty) {
+    lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+    const container = document.getElementById("entriesarchive");
+    container.innerHTML = "";
+
+    querySnapshot.forEach((doc) => {
+      const entry = doc.data();
+      const entryHTML = `
+        <div class="entry">
+          <img src="${entry.image || "default-image.png"}" alt="Entry Image" style="max-width: 100%; height: auto;">
+          <p>${entry.text || "No text available."}</p>
+          <p><strong>${entry.imageDate}</strong></p>
+        </div>
+      `;
+      container.innerHTML += entryHTML;
+    });
+
+    document.getElementById("paginationInfo").innerText = `Page ${page}`;
+  } else {
+    console.log("No more entries to display.");
+    document.getElementById("entriesContainer").innerHTML = "<p>No more entries available.</p>";
+  }
+}
+
   
   // Initialize first page
   displayEntries();
