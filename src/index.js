@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs,
   addDoc, limit, orderBy, query, desc, getCountFromServer, getDoc,
-   onSnapshot, where, serverTimestamp,
+   onSnapshot, where, serverTimestamp, startAfter,
    disablePersistentCacheIndexAutoCreation} from 'firebase/firestore'
   import {
   getDownloadURL,
@@ -93,51 +93,57 @@ if (currentPage === "post") {
 
 
 
-  //index page 
-else if (currentPage === "index") {
+  else if (currentPage === "index") {
 
-  async function getLatestEntry() {
-    // Reference the Firestore collection
-    const colRef = collection(db, 'entries');
+    async function getDailyEntry() {
+      // Reference the Firestore collection
+      const colRef = collection(db, 'entries');
   
-    // Create a query to get the latest entry
-    const q = query(colRef, orderBy("entryDate", "desc")); // Order by entryDate in descending order to get the latest
+      // Create a query to get all entries ordered by entryDate in ascending order (oldest first)
+      const q = query(colRef, orderBy("entryDate", "asc"));
   
-    // Execute the query
-    const querySnapshot = await getDocs(q);
+      // Execute the query
+      const querySnapshot = await getDocs(q);
   
-    // Extract the latest entry
-    let latestEntry = null;
-
-    querySnapshot.forEach((doc) => {
-      latestEntry = { id: doc.id, ...doc.data() };
-    });
-    // Check if a latest entry exists
-    if (latestEntry) {
-      // Select the container element
-      const todayEntryElement = document.getElementById("todayentry");
+      // Extract all entries into an array
+      const entries = [];
+      querySnapshot.forEach((doc) => {
+        entries.push({ id: doc.id, ...doc.data() });
+      });
   
-      // Construct the HTML to display the entry
-      const entryHTML = `
-        <img src="${latestEntry.image}" alt="Entry Image" style="max-width: 100%; height: auto;">
-           <p>${latestEntry.text}</p>
-            <p><strong>Entry Date:</strong> ${latestEntry.entryDate}</p>
-        <p><strong>Image Date:</strong> ${latestEntry.imageDate}</p>
-      `;
+      // Check if there are any entries
+      if (entries.length > 0) {
+        // Calculate which entry to display based on the current date
+        const today = new Date();
+        const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24)); // Days since Unix epoch
+        const entryIndex = daysSinceEpoch % entries.length; // Loop through entries cyclically
   
-      // Update the element's content
-      todayEntryElement.innerHTML = entryHTML;
-
-    } else {
-      // Handle the case where there are no entries
-      document.getElementById("todayentry").innerHTML = "<p> No entries found. this must be an error... </p>";
+        // Get the entry for today
+        const dailyEntry = entries[entryIndex];
+  
+        // Select the container element
+        const todayEntryElement = document.getElementById("todayentry");
+  
+        // Construct the HTML to display the entry
+        const entryHTML = `
+          <img src="${dailyEntry.image}" alt="Entry Image" style="max-width: 100%; height: auto;">
+          <p>${dailyEntry.text}</p>
+          <p><strong>${dailyEntry.imageDate}</strong></p>
+        `;
+  
+        // Update the element's content
+        todayEntryElement.innerHTML = entryHTML;
+  
+      } else {
+        // Handle the case where there are no entries
+        document.getElementById("todayentry").innerHTML = "<p>No entries found. This must be an error...</p>";
+      }
     }
- 
+  
+    // Call the function to display the daily entry
+    getDailyEntry();
   }
-
-  // Call the function to display the latest entry
-  getLatestEntry();
-}
+  
 
 
 
@@ -147,17 +153,17 @@ else if (currentPage === "index") {
 else if (currentPage === "archive") {
   let lastVisible = null; // Tracks the last document in the current page
   let currentPage = 1; // Tracks the current page number
-  const pageSize = 9; // Number of entries per page
+  const pageSize = 6; // Number of entries per page
   async function displayEntries(page = 1) {
     // Reference the Firestore collection
     const colRef = collection(db, "entries");
   
     // Build the query
-    let q = query(colRef, orderBy("entryDate", "desc"), limit(pageSize));
+    let q = query(colRef, orderBy("entryDate", "asc"), limit(pageSize));
   
     // If it's not the first page, use `startAfter` with the last visible document
     if (lastVisible && page > 1) {
-      q = query(colRef, orderBy("entryDate", "desc"), startAfter(lastVisible), limit(pageSize));
+      q = query(colRef, orderBy("entryDate", "asc"), startAfter(lastVisible), limit(pageSize));
     }
   
     // Execute the query
@@ -201,6 +207,7 @@ else if (currentPage === "archive") {
     currentPage += 1;
     displayEntries(currentPage);
   }
+  window.nextPage = nextPage; // Expose the function globally
   
   function prevPage() {
     if (currentPage > 1) {
@@ -208,10 +215,12 @@ else if (currentPage === "archive") {
       displayEntries(currentPage);
     } else {
       console.log("You are already on the first page.");
-}
+    }
+  }
+  window.prevPage = prevPage; // Expose the function globally
+  
 
 }
-    }
 
 
 
