@@ -11,13 +11,32 @@
     
 }
 
+#entriesarchive {  
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Three equal columns */
+    gap: 10px; /* Space between items */
+    font-size: small;
+}
+
+#entriesarchive img {
+    width: 100%; /* Ensure images fill their grid cells */
+    height: auto; /* Maintain aspect ratio */
+}
+
+#paginationControls {
+text-align: center;
+}
+#paginationInfo {
+text-align: center;
+}
 
 body {
+    margin-top: 65px;
     margin-left: 7.5%;
     margin-right: 7.5%;
 }
 
-img {
+#todayentry img {
 max-width: 100%;
 max-height: 900px;
 

@@ -6,17 +6,24 @@
     <link rel="stylesheet" href="style.css">
     <title>ImageDaily</title>
     <a href="index.html"><button type="button">Home >> </button></a> 
-     <a href="post.html"><button type="button">Post >> </button></a>
 </head>
 <body data-page="archive">
-    <script src="script.js"></script>
+  
    
    <h1>Archive</h1> 
-   
- 
+   <div id="entriesarchive">
+      </div>
+
+      <div id="paginationControls">
+        <button id="prevPage" onclick="prevPage()">Previous</button>
+        <button id="nextPage" onclick="nextPage()">Next</button>
+      </div>
+      <p id="paginationInfo"></p>
+      <script src="bundle.js"></script>
 </body>
 <footer>  
-    <div>   
+    <div>  
+      <a href="post.html"><button type="button">Admin</button></a> 
       <a href="https://nikolaiking.com/"><img src="../public/brand/nklogo.png" alt="logo image"></a>  
       <a href="https://github.com/sillyU-jpg"><img src="../public/brand/github.svg" alt="github image"></a>
       <a href="https://www.linkedin.com/in/nikolai-king-4896a0321/"><img src="../public/brand/linkdin.png" alt="linkdin image"></a>
