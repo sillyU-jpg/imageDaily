@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs,
   addDoc, limit, orderBy, query, onSnapshot, where, doc,updateDoc,
-   serverTimestamp, startAfter,} from 'firebase/firestore'
+   serverTimestamp, startAfter,
+   Timestamp,} from 'firebase/firestore'
   import {
   getDownloadURL,
   ref as storageRef,
@@ -12,6 +13,8 @@ import { getFirestore, collection, getDocs,
 import { createUserWithEmailAndPassword, getAuth, signOut,
   signInWithEmailAndPassword, onAuthStateChanged
 } from "firebase/auth";
+
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDvYf2-mdKC_TsoI7fpoVK5B0C4CeRJuis",
@@ -33,14 +36,7 @@ const auth = getAuth() // refers to the Authentication service
 const storage = getStorage(); // refers to the firestore storage
 let loggedIn
 
-  //Database entry debugging,  each time there is an addition to the database refresh the snapshot displayed in console.. 
-//   onSnapshot(colRef, (snapshot) => {
-// let entries = []
-// snapshot.docs.forEach((doc) => {
-//   entries.push({ ...doc.data(), id: doc.id })
-// })
-// console.log(entries)
-// })
+
 
 
 
@@ -107,6 +103,7 @@ else if (currentPage === "archive") {
   let lastVisible = null; // Tracks the last document in the current page
   let currentPage = 1; // Tracks the current page number
   const pageSize = 6; // Number of entries per page
+  
 async function displayEntries(page = 1) {
   const colRef = collection(db, "entries");
   let q = query(colRef, where("displayedOnDaily", "==", true), orderBy("entryDate", "asc"), limit(pageSize));
@@ -121,7 +118,7 @@ async function displayEntries(page = 1) {
     lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
     const container = document.getElementById("entriesarchive");
     container.innerHTML = "";
-
+    
     querySnapshot.forEach((doc) => {
       const entry = doc.data();
       const entryHTML = `
@@ -129,6 +126,7 @@ async function displayEntries(page = 1) {
           <img src="${entry.image || "default-image.png"}" alt="Entry Image" style="max-width: 100%; height: auto;">
           <p>${entry.text || "No text available."}</p>
           <p><strong>${entry.imageDate}</strong></p>
+
         </div>
       `;
       container.innerHTML += entryHTML;
