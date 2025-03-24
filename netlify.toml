@@ -1,0 +1,33 @@
+[build]
+  publish = "dist"  # Netlify will deploy the contents of the dist/ folder
+  command = "npm run build"  # Adjust if needed for your build process
+
+[[redirects]]
+  from = "/"
+  to = "/dist/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/about"
+  to = "/dist/about.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/login"
+  to = "/dist/login.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/post"
+  to = "/dist/post.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/archive"
+  to = "/dist/archive.html"
+  status = 200
+  force = true
